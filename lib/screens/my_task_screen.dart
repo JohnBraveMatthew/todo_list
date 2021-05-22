@@ -14,21 +14,23 @@ class _MyTasksState extends State<MyTasks> {
   Future<List<Task>> _taskList;
   DatabaseHelper _dbHelper;
 
-  @override
-  void initState() {
-    // _dbHelper = DatabaseHelper.instance;
-    // _refreshTaskList();
-    getTasks();
-    super.initState();
+  void _refreshTaskList() async {
+    //Future<List<Task>> x = await _dbHelper.fetchTask();
+    setState(() {
+      _taskList = _dbHelper.fetchTask();
+    });
   }
 
-  void getTasks() async {
+  @override
+  void initState() {
     _dbHelper = DatabaseHelper.instance;
-    _taskList = _dbHelper.fetchTask();
+    _refreshTaskList();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    _refreshTaskList();
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -134,11 +136,5 @@ class _MyTasksState extends State<MyTasks> {
         ),
       ),
     );
-  }
-
-  void _refreshTaskList() {
-    setState(() {
-      _taskList = _dbHelper.fetchTask();
-    });
   }
 }

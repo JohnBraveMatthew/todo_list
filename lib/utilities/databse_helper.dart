@@ -49,8 +49,8 @@ class DatabaseHelper {
 
   Future<List<Task>> fetchTask() async {
     Database db = await this.db;
-    List<Map> notes = await db.query(Task.tblName);
-    return notes.length == 0 ? [] : notes.map((e) => Task.fromMap(e)).toList();
+    List<Map> tasks = await db.query(Task.tblName);
+    return tasks.length == 0 ? [] : tasks.map((e) => Task.fromMap(e)).toList();
   }
 
   Future<List<Map<String, dynamic>>> queryAll() async {
