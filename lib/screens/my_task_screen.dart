@@ -33,6 +33,7 @@ class _MyTasksState extends State<MyTasks> {
     _refreshTaskList();
     return Scaffold(
         floatingActionButton: FloatingActionButton(
+          backgroundColor: Theme.of(context).primaryColor,
           onPressed: () {
             Navigator.push(
                 context,
@@ -70,11 +71,20 @@ class _MyTasksState extends State<MyTasks> {
                       children: [
                         Text(
                           "My Tasks",
-                          style: TextStyle(fontSize: 40, color: Colors.black),
+                          style: TextStyle(
+                              fontSize: 30,
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold),
                         ),
                         Text(
                           "Completed $completedTask of ${snapshot.data.length - 1}",
-                          style: TextStyle(fontSize: 20, color: Colors.black),
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 30,
                         ),
                       ],
                     );
@@ -94,40 +104,46 @@ class _MyTasksState extends State<MyTasks> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Material(
-              elevation: 1,
-              child: ListTile(
-                title: Text(
-                  task.title,
-                  style: TextStyle(
-                    fontSize: 18,
-                    decoration: task.status == 0
-                        ? TextDecoration.none
-                        : TextDecoration.lineThrough,
+            ListTile(
+              title: Text(
+                task.title,
+                style: TextStyle(
+                  fontSize: 18,
+                  decoration: task.status == 0
+                      ? TextDecoration.none
+                      : TextDecoration.lineThrough,
+                ),
+              ),
+              subtitle:
+                  Text("${_dateFormat.format(task.date)} . ${task.priority}",
+                      style: TextStyle(
+                        fontSize: 15,
+                      )),
+              trailing: Checkbox(
+                onChanged: (val) {
+                  task.status = val ? 1 : 0;
+                  _dbHelper.updateTask(task);
+                  _refreshTaskList();
+                },
+                value: task.status == 1 ? true : false,
+                activeColor: Theme.of(context).primaryColor,
+              ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddTask(
+                    task: task,
+                    refreshList: _refreshTaskList,
                   ),
                 ),
-                subtitle:
-                    Text("${_dateFormat.format(task.date)} . ${task.priority}",
-                        style: TextStyle(
-                          fontSize: 15,
-                        )),
-                trailing: Checkbox(
-                  onChanged: (val) {
-                    task.status = val ? 1 : 0;
-                    _dbHelper.updateTask(task);
-                    _refreshTaskList();
-                  },
-                  value: true,
-                  activeColor: Theme.of(context).primaryColor,
-                ),
-                onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => AddTask(
-                              task: task,
-                              refreshList: _refreshTaskList,
-                            ))),
               ),
+              leading: Icon(
+                Icons.event,
+                color: task.priority == "High"
+                    ? Colors.red
+                    : Theme.of(context).primaryColor,
+              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 5),
             ),
             SizedBox(
               height: 10,

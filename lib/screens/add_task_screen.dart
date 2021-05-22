@@ -12,8 +12,6 @@ class AddTask extends StatefulWidget {
 }
 
 class _AddTaskState extends State<AddTask> {
-  //Task _task = Task();
-
   final _formKey = GlobalKey<FormState>();
   String _title, _priority;
   int _status;
@@ -23,12 +21,8 @@ class _AddTaskState extends State<AddTask> {
   final List<String> _priorities = ["Low", "Medium", "High"];
   DatabaseHelper _dbHelper;
 
-  Future<List<Task>> _taskList;
-
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     _dbHelper = DatabaseHelper.instance;
 
     if (widget.task != null) {
@@ -40,11 +34,11 @@ class _AddTaskState extends State<AddTask> {
     _status = 0;
 
     _dateController.text = _dateFormat.format(_date);
+    super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _dateController.dispose();
   }
@@ -59,9 +53,26 @@ class _AddTaskState extends State<AddTask> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
               Text(
-                "Add Task",
-                style: TextStyle(fontSize: 30, color: Colors.black),
+                widget.task == null ? "Add Task" : "Update Task",
+                style: TextStyle(
+                  fontSize: 30,
+                  color: Theme.of(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
+                height: 20,
               ),
               Form(
                 key: _formKey,
@@ -136,7 +147,7 @@ class _AddTaskState extends State<AddTask> {
                           borderRadius: BorderRadius.circular(10)),
                       child: TextButton(
                         child: Text(
-                          "ADD",
+                          widget.task == null ? "ADD" : "UPDATE",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 20,
@@ -148,23 +159,26 @@ class _AddTaskState extends State<AddTask> {
                     SizedBox(
                       height: 20,
                     ),
-                    Container(
-                      height: MediaQuery.of(context).size.height * .07,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(10)),
-                      child: TextButton(
-                        child: Text(
-                          "DELETE",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    )
+                    widget.task != null
+                        ? Container(
+                            height: MediaQuery.of(context).size.height * .07,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                borderRadius: BorderRadius.circular(10)),
+                            child: TextButton(
+                              onPressed: _delete,
+                              child: Text(
+                                "DELETE",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          )
+                        : SizedBox.shrink()
                   ],
                 ),
               ),
@@ -196,6 +210,7 @@ class _AddTaskState extends State<AddTask> {
       if (widget.task == null) {
         _dbHelper.insertTask(task);
       } else {
+        task.id = widget.task.id;
         _dbHelper.updateTask(task);
       }
       widget.refreshList();
@@ -203,5 +218,13 @@ class _AddTaskState extends State<AddTask> {
 
       Navigator.pop(context);
     }
+  }
+
+  _delete() {
+    if (widget.task != null) {
+      _dbHelper.deleteTask(widget.task.id);
+    }
+    widget.refreshList();
+    Navigator.pop(context);
   }
 }
